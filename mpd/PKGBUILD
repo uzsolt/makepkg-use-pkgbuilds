@@ -41,7 +41,7 @@ depends=(
          $(useflag use_wavpack wavpack )
          $(useflag use_mms libmms )
          'yajl')
-makedepends=('doxygen')
+makedepends=($(useflag use_doc doxygen ))
 source=("http://www.musicpd.org/download/${pkgname}/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz"
         'tmpfiles.d')
 sha1sums=('f60b54e368fe74fde2fd4571227b0428fe0ae3cb'
