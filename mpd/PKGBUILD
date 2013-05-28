@@ -13,7 +13,7 @@ url='http://www.musicpd.org/'
 license=('GPL')
 arch=('i686' 'x86_64')
 
-depends=('libao' 
+depends=(
          $(useflag use_alsa alsa-lib )
          $(useflag use_ao libao )
          $(useflag use_audiofile audiofile )
