@@ -1,0 +1,107 @@
+# $Id: PKGBUILD 182602 2013-04-10 23:39:58Z bisson $
+# Maintainer: Gaetan Bisson <bisson@archlinux.org>
+# Contributor: Angel Velasquez <angvp@archlinux.org>
+# Contributor: Andrea Scarpino <andrea@archlinux.org>
+# Contributor: Damir Perisa <damir.perisa@bluewin.ch>
+# Contributor: Ben <ben@benmazer.net>
+
+pkgname=mpd
+pkgver=0.17.4
+pkgrel=1
+pkgdesc='Flexible, powerful, server-side application for playing music'
+url='http://www.musicpd.org/'
+license=('GPL')
+arch=('i686' 'x86_64')
+
+depends=('libao' 
+         $(useflag use_alsa alsa-lib )
+         $(useflag use_ao libao )
+         $(useflag use_audiofile audiofile )
+         $(useflag use_avahi avahi )
+         $(useflag use_doc doxygen )
+         $(useflag use_faad faad2 )
+         $(useflag use_flac libflac )
+         $(useflag use_ffmpeg ffmpeg )
+         $(useflag use_gme libgme )
+         $(useflag use_http_stream curl )
+         $(useflag use_id3 libid3tag )
+         $(useflag use_jack jack )
+         $(useflag use_mad libmad )
+         $(useflag use_modplug libmodplug )
+         $(useflag use_mpg123 mpg123 )
+         $(useflag use_musepack libmpcdec )
+         $(useflag use_pulse libpulse )
+         $(useflag use_samplerate libsamplerate )
+         $(useflag use_shout libshout )
+         $(useflag use_sndfile libsndfile )
+         $(useflag use_soup libsoup )
+         $(useflag use_sqlite sqlite )
+         $(useflag use_twolame twolame )
+         $(useflag use_vorbis libvorbis )
+         $(useflag use_wavpack wavpack )
+         $(useflag use_mms libmms )
+         'yajl')
+makedepends=('doxygen')
+source=("http://www.musicpd.org/download/${pkgname}/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz"
+        'tmpfiles.d')
+sha1sums=('f60b54e368fe74fde2fd4571227b0428fe0ae3cb'
+          'f4d5922abb69abb739542d8e93f4dfd748acdad7')
+
+backup=('etc/mpd.conf')
+install=install
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+        $(useflag use_alsa --enable-alsa --disable-alsa ) \
+        $(useflag use_ao --enable-ao --disable-ao ) \
+        $(useflag use_audiofile --enable-audiofile --disable-audiofile ) \
+        $(useflag use_avahi --with-zeroconf=avahi --with-zeroconf=no ) \
+        $(useflag use_cdio_paranoia --enable-cdio-paranoia --disable-cdio-paranoia ) \
+        $(useflag use_doc --enable-documentation --disable-documentation ) \
+        $(useflag use_faad --enable-aac --disable-aac ) \
+        $(useflag use_ffmpeg --enable-ffmpeg --disable-ffmpeg ) \
+        $(useflag use_flac --enable-flac --disable-flac ) \
+        $(useflag use_gme --enable-gme --disable-gme ) \
+        $(useflag use_http_stream --enable-curl --disable-curl ) \
+        $(useflag use_id3 --enable-id3 --disable-id3 ) \
+        $(useflag use_jack --enable-jack --disable-jack ) \
+        $(useflag use_lastfm --enable-lastfm --disable-lastfm ) \
+        $(useflag use_mad --enable-mad --disable-mad ) \
+        $(useflag use_mms --enable-mms --disable-mms ) \
+        $(useflag use_mpg123 --enable-mpg123 --disable-mpg123 ) \
+        $(useflag use_modplug --enable-modplug --disable-modplug ) \
+        $(useflag use_musepack --enable-mpc --disable-mpc ) \
+        $(useflag use_pulse --enable-pulse --disable-pulse ) \
+        $(useflag use_samplerate --enable-lsr --disable-lsr ) \
+        $(useflag use_shout --enable-shout --disable-shout ) \
+        $(useflag use_sndfile --enable-sndfile --disable-sndfile ) \
+        $(useflag use_soup --enable-soup --disable-soup ) \
+        $(useflag use_sqlite --enable-sqlite --disable-sqlite ) \
+        $(useflag use_twolame --enable-twolame-encoder --disable-twolame-encoder ) \
+        $(useflag use_vorbis '--enable-vorbis --enable-vorbis-encoder' '--disable-vorbis --disable-vorbis-encoder' ) \
+        $(useflag use_wavpack --enable-wavpack --disable-wavpack ) \
+        --disable-libwrap \
+        --disable-roar \
+		--disable-sidplay \
+        --disable-soundcloud \
+		--with-systemdsystemunitdir=/usr/lib/systemd/system
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	install -d -g 45 -o 45 "${pkgdir}"/var/lib/mpd/playlists
+	install -Dm644 doc/mpdconf.example "${pkgdir}"/etc/mpd.conf
+	install -Dm644 ../tmpfiles.d "${pkgdir}"/usr/lib/tmpfiles.d/mpd.conf
+	sed \
+		-e '/^#playlist_directory/c playlist_directory "/var/lib/mpd/playlists"' \
+		-e '/^#db_file/c db_file "/var/lib/mpd/mpd.db"' \
+		-e '/^#pid_file/c pid_file "/run/mpd/mpd.pid"' \
+		-e '/^#state_file/c state_file "/var/lib/mpd/mpdstate"' \
+		-e '/^#user/c user "mpd"' \
+		-i "${pkgdir}"/etc/mpd.conf
+}
