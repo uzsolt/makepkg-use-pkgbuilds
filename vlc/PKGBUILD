@@ -13,7 +13,7 @@ license=('LGPL2.1' 'GPL2')
 depends=('libxpm' 'libproxy' 
          $(useflag use_a52 a52dec)
          $(useflag use_aa aalib)
-         $(useflag use_alsa alsa)
+         $(useflag use_alsa alsa-lib)
          $(useflag use_ass libass)
          $(useflag use_avahi avahi)
          $(useflag use_bluray libbluray)
