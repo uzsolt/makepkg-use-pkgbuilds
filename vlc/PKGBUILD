@@ -1,0 +1,180 @@
+# $Id: PKGBUILD 186492 2013-05-27 19:38:42Z giovanni $
+# Maintainer: Giovanni Scafora <giovanni@archlinux.org>
+# Contributor: Sarah Hay <sarahhay@mb.sympatico.ca>
+# Contributor: Martin Sandsmark <martin.sandsmark@kde.org>
+
+pkgname=vlc
+pkgver=2.0.7
+pkgrel=1
+pkgdesc="A multi-platform MPEG, VCD/DVD, and DivX player"
+arch=('i686' 'x86_64')
+url="http://www.videolan.org/vlc/"
+license=('LGPL2.1' 'GPL2')
+depends=('libxpm' 'libproxy' 
+         $(useflag use_a52 a52dec)
+         $(useflag use_aa aalib)
+         $(useflag use_alsa alsa)
+         $(useflag use_ass libass)
+         $(useflag use_avahi avahi)
+         $(useflag use_bluray libbluray)
+         $(useflag use_caca libcaca)
+         $(useflag use_cddb libcddb)
+         $(useflag use_dc1394 libdc1394)
+         $(useflag use_dca libdca)
+         $(useflag use_dv libavc1394)
+         $(useflag use_dvbpsi libdvbpsi)
+         $(useflag use_dvdcss libdvdcss)
+         $(useflag use_dvdnav libdvdnav)
+         $(useflag use_faad2 faad)
+         $(useflag use_ffmpeg ffmpeg)
+         $(useflag use_flac flac)
+         $(useflag use_fluidsynth fluidsynth)
+         $(useflag use_gme libgme)
+         $(useflag use_gnomevfs gnomevfs)
+         $(useflag use_jack jack)
+         $(useflag use_kate libkate)
+         $(useflag use_kde libkde)
+         $(useflag use_lirc lirc-utils)
+         $(useflag use_livemedia livemedia)
+         $(useflag use_lua lua51)
+         $(useflag use_mad libmad)
+         $(useflag use_matroska libmatroska)
+         $(useflag use_modplug libmodplug)
+         $(useflag use_mtp libmtp)
+         $(useflag use_musepack libmpcdec)
+         $(useflag use_ncurses ncurses)
+         $(useflag use_opus opus)
+         $(useflag use_oss oss)
+         $(useflag use_portaudio portaudio)
+         $(useflag use_projectm 'projectm mesa')
+         $(useflag use_pulse libpulse)
+         $(useflag use_qt4 qt4)
+         $(useflag use_samba smbclient)
+         $(useflag use_samplerate libsamplerate)
+         $(useflag use_schroedinger schroedinger)
+         $(useflag use_sdl sdl_image)
+         $(useflag use_shout libshout)
+         $(useflag use_sid libsidplay)
+         $(useflag use_speex speex)
+         $(useflag use_ssh libssh2)
+         $(useflag use_taglib taglib)
+         $(useflag use_theora libtheora)
+         $(useflag use_tiger libtiger)
+         $(useflag use_twolame twolame)
+         $(useflag use_upnp libupnp)
+         $(useflag use_vcd vcdimager)
+         $(useflag use_vorbis libvorbis)
+         $(useflag use_xosd xosd)
+         $(useflag use_zvbi zvbi)
+         'libmpeg2' 'xcb-util-keysyms')
+makedepends=('libnotify'
+             'librsvg'
+             'libtar')
+optdepends=(
+            'libnotify: for notification plugin'
+            'libdvdcss: for decoding encrypted DVDs'
+            'libva-vdpau-driver: vdpau back-end for nvidia'
+            'libva-intel-driver: back-end for intel cards'
+            'librsvg: for SVG plugin'
+            'libcdio: for audio CD playback support'
+            'ttf-freefont: for subtitle font '
+            'ttf-dejavu: for subtitle font')
+conflicts=('vlc-plugin')
+replaces=('vlc-plugin')
+if [ ${use_lua:-0} -gt 0 ]; then
+backup=('usr/share/vlc/lua/http/.hosts'
+        'usr/share/vlc/lua/http/dialogs/.hosts')
+fi
+options=('!libtool' '!emptydirs')
+install=vlc.install
+source=("http://download.videolan.org/pub/videolan/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz")
+md5sums=('3b0e465b0990097b65abaf3e25589957')
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  sed -i -e 's:truetype/freefont:TTF:g' modules/text_renderer/freetype.c
+  sed -i -e 's:truetype/ttf-dejavu:TTF:g' modules/visualization/projectm.cpp
+
+  CFLAGS+="-I/usr/include/samba-4.0" CPPFLAGS+="-I/usr/include/samba-4.0" \
+  ./configure --prefix=/usr \
+              --sysconfdir=/etc \
+              --disable-rpath \
+              $(useflag use_a52 --{enable,disable}-a52 ) \
+              $(useflag use_aa --{enable,disable}-aa ) \
+              $(useflag use_alsa --{enable,disable}-alsa ) \
+              $(useflag use_ass --{enable,disable}-libass ) \
+              $(useflag use_avahi --{enable,disable}-bonjour ) \
+              $(useflag use_bluray --{enable,disable}-bluray ) \
+              $(useflag use_caca --{enable,disable}-caca ) \
+              $(useflag use_cddb --{enable,disable}-libcddb ) \
+              $(useflag use_dc1394 --{enable,disable}-dc1394 ) \
+              $(useflag use_dca --{enable,disable}-dca ) \
+              $(useflag use_dv --{enable,disable}-dv ) \
+              $(useflag use_dvbpsi --{enable,disable}-dvbpsi ) \
+              $(useflag use_dvdnav --{enable,disable}-dvdnav ) \
+              $(useflag use_faad2 --{enable,disable}-faad ) \
+              $(useflag use_ffmpeg --{enable,disable}-merge-ffmpeg ) \
+              $(useflag use_flac --{enable,disable}-flac ) \
+              $(useflag use_fluidsynth --{enable,disable}-fluidsynth ) \
+              $(useflag use_gme --{enable,disable}-gme ) \
+              $(useflag use_gnomevfs --{enable,disable}-gnomevfs ) \
+              $(useflag use_goom --{enable,disable}-goom ) \
+              $(useflag use_jack --{enable,disable}-jack ) \
+              $(useflag use_kate --{enable,disable}-kate ) \
+              $(useflag use_kde --with{,out}-kde-solid ) \
+              $(useflag use_lirc --{enable,disable}-lirc ) \
+              $(useflag use_livemedia --{enable,disable}-live555 ) \
+              $(useflag use_lua --{enable,disable}-lua ) \
+              $(useflag use_mad --{enable,disable}-mad ) \
+              $(useflag use_matroska --{enable,disable}-mkv ) \
+              $(useflag use_modplug --{enable,disable}-mod ) \
+              $(useflag use_mtp --{enable,disable}-mtp ) \
+              $(useflag use_musepack --{enable,disable}-mpc ) \
+              $(useflag use_ncurses --{enable,disable}-ncurses ) \
+              $(useflag use_ogg --{enable,disable}-ogg ) \
+              $(useflag use_opus --{enable,disable}-opus ) \
+              $(useflag use_oss --{enable,disable}-oss ) \
+              $(useflag use_portaudio --{enable,disable}-portaudio ) \
+              $(useflag use_projectm --{enable,disable}-projectm ) \
+              $(useflag use_pulse --{enable,disable}-pulse ) \
+              $(useflag use_qt4 "--enable-qt4 --enable-skins2" "--disable-qt4 --disable-skins2" ) \
+              $(useflag use_samba --{enable,disable}-smb ) \
+              $(useflag use_samplerate --{enable,disable}-samplerate ) \
+              $(useflag use_schroedinger --{enable,disable}-schroedinger ) \
+              $(useflag use_sdl "--enable-sdl --enable-sdl_image" "--disable-sdl --disable-sdl_image" ) \
+              $(useflag use_shout --{enable,disable}-shout ) \
+              $(useflag use_sid --{enable,disable}-sid ) \
+              $(useflag use_speex --{enable,disable}-speex ) \
+              $(useflag use_ssh --{enable,disable}-sftp ) \
+              $(useflag use_taglib --{enable,disable}-taglib ) \
+              $(useflag use_theora --{enable,disable}-theora ) \
+              $(useflag use_tiger --{enable,disable}-tiger ) \
+              $(useflag use_twolame --{enable,disable}-twolame ) \
+              $(useflag use_upnp --{enable,disable}-upnp ) \
+              $(useflag use_vcd --{enable,disable}-vcdx ) \
+              $(useflag use_vorbis --{enable,disable}-vorbis ) \
+              $(useflag use_xosd --{enable,disable}-xosd ) \
+              $(useflag use_zvbi --{enable,disable}-zvbi ) \
+              --disable-dirac \
+              --enable-nls \
+              --enable-pvr \
+              --enable-realrtsp \
+              --disable-linsys \
+              --disable-decklink \
+              $(useflag use_lua LUAC=luac5.1 ) \
+              $(useflag use_qt4 RCC=/usr/bin/rcc-qt4 )
+
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make DESTDIR="${pkgdir}" install
+
+  for res in 16 32 48 128; do
+    install -D -m644 "${srcdir}/vlc-${pkgver}/share/icons/${res}x${res}/vlc.png" \
+        "${pkgdir}/usr/share/icons/hicolor/${res}x${res}/apps/vlc.png"
+  done
+}
