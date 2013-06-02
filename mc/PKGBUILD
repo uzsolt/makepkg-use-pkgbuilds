@@ -1,0 +1,75 @@
+# $Id: PKGBUILD 87681 2013-04-05 09:09:21Z schuay $
+# Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
+# Maintainer: schuay <jakob.gruber@gmail.com>
+
+pkgname=mc
+pkgver=4.8.8
+pkgrel=1
+pkgdesc="Midnight Commander is a text based filemanager/shell that emulates Norton Commander"
+arch=('i686' 'x86_64')
+url="http://www.ibiblio.org/mc/"
+license=('GPL')
+depends=(
+    'e2fsprogs'
+    'glib2'
+    $(useflag use_gpm gpm)
+    $(useflag use_samba smb)
+    $(useflag use_ssh libssh2)
+    'pcre'
+    $(useflag use_ncurses ncurses slang)
+)
+makedepends=('libxt' 'libx11' $(useflag use_doc doxygen))
+optdepends=(
+    'cabextract: ucab extfs'
+    'cdparanoia: audio extfs'
+    'cdrkit: iso9660 extfs'
+    'gawk: hp48+ extfs'
+    'aspell: spelling corrections'
+    'cvs: CVS support'
+    'mtools: a+ extfs'
+    'perl: needed by several extfs scripts'
+    'python2-boto: s3+ extfs'
+    'python2-pytz: s3+ extfs'
+    'unace: uace extfs'
+    'unarj: uarj extfs'
+    'unrar: urar extfs'
+    'zip: uzip extfs'
+    'p7zip: support for 7zip archives')
+options=('!emptydirs' '!makeflags')
+backup=('etc/mc/edit.indent.rc'
+        'etc/mc/filehighlight.ini'
+        'etc/mc/mcedit.menu'
+        'etc/mc/mc.ext'
+        'etc/mc/mc.keymap'
+        'etc/mc/mc.menu'
+        'etc/mc/sfs.ini')
+source=("http://www.midnight-commander.org/downloads/${pkgname}-${pkgver}.tar.bz2")
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+
+    ./configure --prefix=/usr --sysconfdir=/etc \
+        $(useflag use_doc --enable-doxygen-man --disable-doxygen-doc ) \
+        $(useflag use_gpm --with{,out}-gpm-mouse ) \
+        $(useflag use_ncurses --with-screen={ncurses,slang} ) \
+        $(useflag use_samba --{enable,disable}-vfs-smb ) \
+        $(useflag use_ssh --{enable,disable}-sftp ) \
+        --with-x --libexecdir=/usr/lib
+
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+
+    make DESTDIR="${pkgdir}" install
+
+    # Fix FS#15177
+    sed 's|op_has_zipinfo = 0|op_has_zipinfo = 1|' \
+        -i "${pkgdir}/usr/lib/mc/extfs.d/uzip"
+
+    sed 's#/usr/bin/env python#/usr/bin/python2#' \
+        -i "${pkgdir}/usr/lib/mc/extfs.d/s3+"
+}
+
+md5sums=('324ff5a192d30d3a3b234c130550eb0a')
