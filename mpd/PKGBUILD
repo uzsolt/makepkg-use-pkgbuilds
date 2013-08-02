@@ -7,7 +7,7 @@
 
 pkgname=mpd
 pkgver=0.17.4
-pkgrel=3
+pkgrel=5
 pkgdesc='Flexible, powerful, server-side application for playing music'
 url='http://www.musicpd.org/'
 license=('GPL')
@@ -89,6 +89,7 @@ build() {
         $(useflag use_twolame --enable-twolame-encoder --disable-twolame-encoder ) \
         $(useflag use_vorbis '--enable-vorbis --enable-vorbis-encoder' '--disable-vorbis --disable-vorbis-encoder' ) \
         $(useflag use_wavpack --enable-wavpack --disable-wavpack ) \
+        --enable-pipe-output \
         --disable-libwrap \
         --disable-roar \
 		--disable-sidplay \
