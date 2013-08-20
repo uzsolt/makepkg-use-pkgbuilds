@@ -14,20 +14,16 @@ license=('GPL')
 depends=(
     'alsa-lib' 'bzip2' 'fontconfig'
     $(useflag use_ass libass )
-    $(useflag use_bluray libbluray )
-    $(useflag use_caca libcaca )
     $(useflag use_gsm gsm )
     $(useflag use_lame lame )
     $(useflag use_modplug libmodplug )
     $(useflag use_opencore opencora-amr )
-    $(useflag use_opus opus )
     $(useflag use_pulse libpulse )
     $(useflag use_rtmp rtmpdump )
     $(useflag use_schroedinger schroedinger )
     $(useflag use_sdl sdl )
     $(useflag use_speex speex )
     $(useflag use_theora libtheora )
-    $(useflag use_twolame twolame )
     $(useflag use_v4l v4l-utils )
     $(useflag use_vorbis libvorbis )
       'libva' 'libvpx'
@@ -35,38 +31,32 @@ depends=(
       'x264' 'xvidcore' 'zlib'
       )
 makedepends=($(useflag use_vdpau libvdpau ) 'yasm')
-source=(http://ffmpeg.org/releases/$pkgname-$pkgver.tar.bz2)
+source=(http://ffmpeg.org/releases/ffmpeg-$pkgver.tar.bz2)
 sha256sums=('2e371088a71656be41b4ff70ae7e80a1d88c5149d6209013c9cce4b84278cbc8')
 
 build() {
   cd ffmpeg-$pkgver
 
-  ./configure \
+  CFLAGS+="-I/usr/include/openjpeg-1.5/" \
+    ./configure \
     --prefix=/usr \
     --disable-debug \
     --disable-static \
     --enable-pic \
     $(useflag use_ass --enable-libass --disable-libass ) \
-    $(useflag use_bluray --enable-libbluray --disable-libbluray ) \
-    $(useflag use_caca --enable-libcaca --disable-libcaca ) \
     $(useflag use_gsm --enable-libgsm --disable-libgsm ) \
     $(useflag use_lame --enable-libmp3lame --disable-libmp3lame ) \
     $(useflag use_modplug --enable-libmodplug --disable-libmodplug ) \
     $(useflag use_opencore '--enable-libopencore_amrnb --enable-libopencore_amrwb' \
         '--disable-libopencore_amrnb --disable-libopencore_amrwb' ) \
-    $(useflag use_opus --enable-libopus --disable-libopus ) \
     $(useflag use_pulse --enable-libpulse --disable-libpulse ) \
     $(useflag use_schroedinger --enable-libschroedinger --disable-libschroedinger ) \
     $(useflag use_speex --enable-libspeex --disable-libspeex ) \
     $(useflag use_theora --enable-libtheora --disable-libtheora ) \
-    $(useflag use_twolame --enable-libtwolame --disable-libtwolame ) \
     $(useflag use_v4l --enable-libv4l2 --disable-libv4l2 ) \
     $(useflag use_vorbis --enable-libvorbis --disable-libvorbis ) \
     $(useflag use_vdpa --enable-vdpau --disable-vdpau ) \
     $(useflag use_rtmp --enable-librtmp --disable-librtmp ) \
-    --enable-avresample \
-    --enable-dxva2 \
-    --enable-fontconfig \
     --enable-gpl \
     --enable-libfreetype \
     --enable-libopenjpeg \
